@@ -1,0 +1,20 @@
+interface TcamMemI;
+service TcamS, TcamSearchEngineS;
+
+CE TcamMemory implements TcamMemI;
+
+PE Tcam("TcamConfig.cfg") implements TcamS {};
+
+PE DefaultTcamController implements TcamSearchEngineS{
+  TcamS tcam_port;
+  TcamMemI mem;
+};
+
+PE TcamSearchEngine implements TcamSearchEngineS {
+  Tcam main_tcam;
+  DefaultTcamController controller;
+  TcamMemory TLMMemory;
+
+  bind controller.tcam_port {main_tcam};
+  bind controller.mem {TLMMemory};
+};

@@ -1,0 +1,339 @@
+import tcam;
+
+interface QueueRdI, QueueWrI, MemI;
+service ControlPlaneAgentS;
+
+CE Queue("QueueConfig.cfg") implements QueueRdI, QueueWrI;
+CE Memory implements MemI;
+
+service MemoryManagerS;
+
+PE MemoryManager implements MemoryManagerS {
+  MemI mem_port[];
+};
+
+PE Multiplexer {
+  QueueRdI mux_input[];
+  QueueWrI mux_output[];
+};
+
+PE Demultiplexer {
+  QueueRdI demux_input[];
+  QueueWrI demux_output[];
+};
+
+PE PacketGenerator("PacketGeneratorConfig.cfg") {
+  QueueWrI out;
+};
+
+PE Logger("LoggerConfig.cfg") {
+	QueueRdI in;
+};
+
+PE Parser {
+  QueueRdI parser_in;
+  QueueWrI parser_out;
+
+  MemoryManagerS memory_manager;
+};
+
+PE Deparser {
+  QueueRdI deparser_in;
+  QueueWrI deparser_out;
+
+  MemoryManagerS memory_manager;
+};
+
+PE Selector {
+  QueueRdI select_in;
+  QueueWrI select_out;
+};
+
+PE MatchTable {
+  QueueRdI table_in;
+  QueueWrI table_out;
+  TcamSearchEngineS tse_port;
+};
+
+PE VLIWAction {
+  QueueRdI action_in;
+  QueueWrI action_out;
+};
+
+PE MatchStage {
+  QueueRdI match_stage_in;
+  QueueWrI match_stage_out;
+
+  Queue selector_to_match, match_to_action;
+
+  Selector selector;
+  MatchTable match_table;
+  VLIWAction vliw_action;
+  TcamSearchEngine tse;
+
+  bind selector.select_in {match_stage_in};
+  bind selector.select_out {selector_to_match};
+  bind match_table.table_in {selector_to_match};
+  bind match_table.table_out {match_to_action};
+  bind vliw_action.action_in {match_to_action};
+  bind vliw_action.action_out {match_stage_out};
+  bind match_table.tse_port {tse};
+};
+
+PE Pipeline {
+  QueueRdI pipe_in;
+  QueueWrI pipe_out;
+
+  Queue to_stage1;
+  Queue from_stage32;
+  Queue stage_to_stage[31];
+  Queue demux_to_parser[16];
+  Queue parser_to_mux[16];
+
+  Parser parser[16];
+  Demultiplexer pre_parse_demux;
+  Multiplexer post_parse_mux;
+  MatchStage match_stage[32];
+  Deparser deparser;
+
+  MemoryManagerS memory_manager;
+
+  bind pre_parse_demux.demux_input[0] {pipe_in};
+
+  bind pre_parse_demux.demux_output[0] {demux_to_parser[0]};
+  bind pre_parse_demux.demux_output[1] {demux_to_parser[1]};
+  bind pre_parse_demux.demux_output[2] {demux_to_parser[2]};
+  bind pre_parse_demux.demux_output[3] {demux_to_parser[3]};
+  bind pre_parse_demux.demux_output[4] {demux_to_parser[4]};
+  bind pre_parse_demux.demux_output[5] {demux_to_parser[5]};
+  bind pre_parse_demux.demux_output[6] {demux_to_parser[6]};
+  bind pre_parse_demux.demux_output[7] {demux_to_parser[7]};
+  bind pre_parse_demux.demux_output[8] {demux_to_parser[8]};
+  bind pre_parse_demux.demux_output[9] {demux_to_parser[9]};
+  bind pre_parse_demux.demux_output[10] {demux_to_parser[10]};
+  bind pre_parse_demux.demux_output[11] {demux_to_parser[11]};
+  bind pre_parse_demux.demux_output[12] {demux_to_parser[12]};
+  bind pre_parse_demux.demux_output[13] {demux_to_parser[13]};
+  bind pre_parse_demux.demux_output[14] {demux_to_parser[14]};
+  bind pre_parse_demux.demux_output[15] {demux_to_parser[15]};
+
+  bind parser[0].parser_in {demux_to_parser[0]};
+  bind parser[1].parser_in {demux_to_parser[1]};
+  bind parser[2].parser_in {demux_to_parser[2]};
+  bind parser[3].parser_in {demux_to_parser[3]};
+  bind parser[4].parser_in {demux_to_parser[4]};
+  bind parser[5].parser_in {demux_to_parser[5]};
+  bind parser[6].parser_in {demux_to_parser[6]};
+  bind parser[7].parser_in {demux_to_parser[7]};
+  bind parser[8].parser_in {demux_to_parser[8]};
+  bind parser[9].parser_in {demux_to_parser[9]};
+  bind parser[10].parser_in {demux_to_parser[10]};
+  bind parser[11].parser_in {demux_to_parser[11]};
+  bind parser[12].parser_in {demux_to_parser[12]};
+  bind parser[13].parser_in {demux_to_parser[13]};
+  bind parser[14].parser_in {demux_to_parser[14]};
+  bind parser[15].parser_in {demux_to_parser[15]};
+
+  bind parser[0].parser_out {parser_to_mux[0]};
+  bind parser[1].parser_out {parser_to_mux[1]};
+  bind parser[2].parser_out {parser_to_mux[2]};
+  bind parser[3].parser_out {parser_to_mux[3]};
+  bind parser[4].parser_out {parser_to_mux[4]};
+  bind parser[5].parser_out {parser_to_mux[5]};
+  bind parser[6].parser_out {parser_to_mux[6]};
+  bind parser[7].parser_out {parser_to_mux[7]};
+  bind parser[8].parser_out {parser_to_mux[8]};
+  bind parser[9].parser_out {parser_to_mux[9]};
+  bind parser[10].parser_out {parser_to_mux[10]};
+  bind parser[11].parser_out {parser_to_mux[11]};
+  bind parser[12].parser_out {parser_to_mux[12]};
+  bind parser[13].parser_out {parser_to_mux[13]};
+  bind parser[14].parser_out {parser_to_mux[14]};
+  bind parser[15].parser_out {parser_to_mux[15]};
+
+  bind parser[0].memory_manager {memory_manager};
+  bind parser[1].memory_manager {memory_manager};
+  bind parser[2].memory_manager {memory_manager};
+  bind parser[3].memory_manager {memory_manager};
+  bind parser[4].memory_manager {memory_manager};
+  bind parser[5].memory_manager {memory_manager};
+  bind parser[6].memory_manager {memory_manager};
+  bind parser[7].memory_manager {memory_manager};
+  bind parser[8].memory_manager {memory_manager};
+  bind parser[9].memory_manager {memory_manager};
+  bind parser[10].memory_manager {memory_manager};
+  bind parser[11].memory_manager {memory_manager};
+  bind parser[12].memory_manager {memory_manager};
+  bind parser[13].memory_manager {memory_manager};
+  bind parser[14].memory_manager {memory_manager};
+  bind parser[15].memory_manager {memory_manager};
+
+  bind post_parse_mux.mux_input[0] {parser_to_mux[0]};
+  bind post_parse_mux.mux_input[1] {parser_to_mux[1]};
+  bind post_parse_mux.mux_input[2] {parser_to_mux[2]};
+  bind post_parse_mux.mux_input[3] {parser_to_mux[3]};
+  bind post_parse_mux.mux_input[4] {parser_to_mux[4]};
+  bind post_parse_mux.mux_input[5] {parser_to_mux[5]};
+  bind post_parse_mux.mux_input[6] {parser_to_mux[6]};
+  bind post_parse_mux.mux_input[7] {parser_to_mux[7]};
+  bind post_parse_mux.mux_input[8] {parser_to_mux[8]};
+  bind post_parse_mux.mux_input[9] {parser_to_mux[9]};
+  bind post_parse_mux.mux_input[10] {parser_to_mux[10]};
+  bind post_parse_mux.mux_input[11] {parser_to_mux[11]};
+  bind post_parse_mux.mux_input[12] {parser_to_mux[12]};
+  bind post_parse_mux.mux_input[13] {parser_to_mux[13]};
+  bind post_parse_mux.mux_input[14] {parser_to_mux[14]};
+  bind post_parse_mux.mux_input[15] {parser_to_mux[15]};
+
+  bind post_parse_mux.mux_output[0] {to_stage1};
+
+  bind match_stage[0].match_stage_in {to_stage1};
+  bind match_stage[1].match_stage_in {stage_to_stage[0]};
+  bind match_stage[2].match_stage_in {stage_to_stage[1]};
+  bind match_stage[3].match_stage_in {stage_to_stage[2]};
+  bind match_stage[4].match_stage_in {stage_to_stage[3]};
+  bind match_stage[5].match_stage_in {stage_to_stage[4]};
+  bind match_stage[6].match_stage_in {stage_to_stage[5]};
+  bind match_stage[7].match_stage_in {stage_to_stage[6]};
+  bind match_stage[8].match_stage_in {stage_to_stage[7]};
+  bind match_stage[9].match_stage_in {stage_to_stage[8]};
+  bind match_stage[10].match_stage_in {stage_to_stage[9]};
+  bind match_stage[11].match_stage_in {stage_to_stage[10]};
+  bind match_stage[12].match_stage_in {stage_to_stage[11]};
+  bind match_stage[13].match_stage_in {stage_to_stage[12]};
+  bind match_stage[14].match_stage_in {stage_to_stage[13]};
+  bind match_stage[15].match_stage_in {stage_to_stage[14]};
+  bind match_stage[16].match_stage_in {stage_to_stage[15]};
+  bind match_stage[17].match_stage_in {stage_to_stage[16]};
+  bind match_stage[18].match_stage_in {stage_to_stage[17]};
+  bind match_stage[19].match_stage_in {stage_to_stage[18]};
+  bind match_stage[20].match_stage_in {stage_to_stage[19]};
+  bind match_stage[21].match_stage_in {stage_to_stage[20]};
+  bind match_stage[22].match_stage_in {stage_to_stage[21]};
+  bind match_stage[23].match_stage_in {stage_to_stage[22]};
+  bind match_stage[24].match_stage_in {stage_to_stage[23]};
+  bind match_stage[25].match_stage_in {stage_to_stage[24]};
+  bind match_stage[26].match_stage_in {stage_to_stage[25]};
+  bind match_stage[27].match_stage_in {stage_to_stage[26]};
+  bind match_stage[28].match_stage_in {stage_to_stage[27]};
+  bind match_stage[29].match_stage_in {stage_to_stage[28]};
+  bind match_stage[30].match_stage_in {stage_to_stage[29]};
+  bind match_stage[31].match_stage_in {stage_to_stage[30]};
+
+  bind match_stage[0].match_stage_out {stage_to_stage[0]};
+  bind match_stage[1].match_stage_out {stage_to_stage[1]};
+  bind match_stage[2].match_stage_out {stage_to_stage[2]};
+  bind match_stage[3].match_stage_out {stage_to_stage[3]};
+  bind match_stage[4].match_stage_out {stage_to_stage[4]};
+  bind match_stage[5].match_stage_out {stage_to_stage[5]};
+  bind match_stage[6].match_stage_out {stage_to_stage[6]};
+  bind match_stage[7].match_stage_out {stage_to_stage[7]};
+  bind match_stage[8].match_stage_out {stage_to_stage[8]};
+  bind match_stage[9].match_stage_out {stage_to_stage[9]};
+  bind match_stage[10].match_stage_out {stage_to_stage[10]};
+  bind match_stage[11].match_stage_out {stage_to_stage[11]};
+  bind match_stage[12].match_stage_out {stage_to_stage[12]};
+  bind match_stage[13].match_stage_out {stage_to_stage[13]};
+  bind match_stage[14].match_stage_out {stage_to_stage[14]};
+  bind match_stage[15].match_stage_out {stage_to_stage[15]};
+  bind match_stage[16].match_stage_out {stage_to_stage[16]};
+  bind match_stage[17].match_stage_out {stage_to_stage[17]};
+  bind match_stage[18].match_stage_out {stage_to_stage[18]};
+  bind match_stage[19].match_stage_out {stage_to_stage[19]};
+  bind match_stage[20].match_stage_out {stage_to_stage[20]};
+  bind match_stage[21].match_stage_out {stage_to_stage[21]};
+  bind match_stage[22].match_stage_out {stage_to_stage[22]};
+  bind match_stage[23].match_stage_out {stage_to_stage[23]};
+  bind match_stage[24].match_stage_out {stage_to_stage[24]};
+  bind match_stage[25].match_stage_out {stage_to_stage[25]};
+  bind match_stage[26].match_stage_out {stage_to_stage[26]};
+  bind match_stage[27].match_stage_out {stage_to_stage[27]};
+  bind match_stage[28].match_stage_out {stage_to_stage[28]};
+  bind match_stage[29].match_stage_out {stage_to_stage[29]};
+  bind match_stage[30].match_stage_out {stage_to_stage[30]};
+  bind match_stage[31].match_stage_out {from_stage32};
+
+  bind deparser.deparser_in {from_stage32};
+
+  bind deparser.deparser_out {pipe_out};
+
+  bind deparser.memory_manager {memory_manager};
+};
+
+PE Buffer {
+  QueueRdI buffer_in;
+  QueueWrI buffer_out;
+};
+
+PE ControlPlaneAgent implements ControlPlaneAgentS {
+  QueueRdI from_egress;
+  QueueWrI to_ingress;
+};
+
+PE ControlPlane {
+  ControlPlaneAgentS cpa;
+};
+
+PE IngressMultiplexer {
+  QueueRdI packet_in;
+  QueueRdI from_agent;
+  QueueWrI output;
+};
+
+PE EgressDemultiplexer {
+  QueueRdI input;
+  QueueWrI packet_out;
+  QueueWrI to_agent;
+};
+
+PE RMT implements ControlPlaneAgentS {
+  QueueRdI rmt_in;
+  QueueWrI rmt_out;
+
+  Queue to_buffer, from_buffer, agent_to_ingress, egress_to_agent, to_ingress, from_egress;
+  Pipeline ingress_pipeline, egress_pipeline;
+  Buffer buffer;
+  ControlPlaneAgent cp_agent;
+  IngressMultiplexer ingress_mux;
+  EgressDemultiplexer egress_demux;
+  MemoryManager memory_manager;
+  Memory mem;
+
+  bind ingress_mux.packet_in {rmt_in};
+  bind ingress_mux.from_agent {agent_to_ingress};
+  bind ingress_mux.output {to_ingress};
+
+  bind egress_demux.input {from_egress};
+  bind egress_demux.packet_out {rmt_out};
+  bind egress_demux.to_agent {egress_to_agent};
+
+  bind ingress_pipeline.pipe_in {to_ingress};
+  bind ingress_pipeline.pipe_out {to_buffer};
+  bind ingress_pipeline.memory_manager {memory_manager};
+
+  bind buffer.buffer_in {to_buffer};
+  bind buffer.buffer_out {from_buffer};
+
+  bind egress_pipeline.pipe_in {from_buffer};
+  bind egress_pipeline.pipe_out {from_egress};
+  bind egress_pipeline.memory_manager {memory_manager};
+
+  bind cp_agent.to_ingress {agent_to_ingress};
+  bind cp_agent.from_egress {egress_to_agent};
+
+  bind memory_manager.mem_port[0] {mem};
+};
+
+PE top {
+  Queue ingress_queue, egress_queue;
+  PacketGenerator pktgen;
+  Logger logger;
+  RMT rmt;
+  ControlPlane control_plane;
+
+  bind pktgen.out {ingress_queue};
+  bind rmt.rmt_in {ingress_queue};
+  bind rmt.rmt_out {egress_queue};
+  bind logger.in {egress_queue};
+  bind control_plane.cpa {rmt};
+};
