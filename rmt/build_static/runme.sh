@@ -40,4 +40,4 @@ else
     vlvl='minimal'
 fi
 echo $vlvl
-./rmt-sim -c Configs/ -Xp4 simple_router.json -Xtpop table.txt -v "$vlvl"
+./rmt-sim -c Configs/ -Xp4 simple_router.json -Xtpop table.txt -Xin Configs/input.pcap -Xvalidation-out reordered-output.pcap -v "$vlvl"
