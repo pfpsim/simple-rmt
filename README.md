@@ -88,7 +88,7 @@ We provide a convenient wrapper script to simplify the process of running the mo
 
 ``` sh
 # Run the Model
-./runme.sh minimal
+./runme.sh normal
 ```
 
 ####Inputs required by the Model:
