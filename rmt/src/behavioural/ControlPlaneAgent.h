@@ -62,6 +62,10 @@ class ControlPlaneAgent: public ControlPlaneAgentSIM,
         pfp::cp::DeleteCommand*) override;
   std::shared_ptr<pfp::cp::CommandResult> process(
         pfp::cp::BootCompleteCommand*) override;
+  std::shared_ptr<pfp::cp::CommandResult> process(
+        pfp::cp::BeginTransactionCommand*) override;
+  std::shared_ptr<pfp::cp::CommandResult> process(
+        pfp::cp::EndTransactionCommand*) override;
 
   void command_processing_thread();
 

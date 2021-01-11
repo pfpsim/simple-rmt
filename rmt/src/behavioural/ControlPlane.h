@@ -59,6 +59,9 @@ class ControlPlane: public ControlPlaneSIM,
   std::shared_ptr<cp::CommandResult> process(cp::ModifyCommand*) override;
   std::shared_ptr<cp::CommandResult> process(cp::DeleteCommand*) override;
   std::shared_ptr<cp::CommandResult> process(cp::BootCompleteCommand*) override;
+  std::shared_ptr<cp::CommandResult> process(cp::BeginTransactionCommand*) override;
+  std::shared_ptr<cp::CommandResult> process(cp::EndTransactionCommand*) override;
+
 
   // For cp::ResultProcessor
   void process(cp::InsertResult*) override;

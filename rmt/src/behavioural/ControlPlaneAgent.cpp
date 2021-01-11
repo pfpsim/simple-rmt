@@ -223,3 +223,15 @@ ControlPlaneAgent::process(pfp::cp::BootCompleteCommand*) {
   to_ingress->put(msg);
   return nullptr;
 }
+
+std::shared_ptr<pfp::cp::CommandResult>
+ControlPlaneAgent::process(pfp::cp::BeginTransactionCommand *cmd) {
+  cout << "Begin Transaction Command at ControlPlaneAgent" << endl;
+  return nullptr;
+}
+
+std::shared_ptr<pfp::cp::CommandResult>
+ControlPlaneAgent::process(pfp::cp::EndTransactionCommand *cmd) {
+  cout << "End Transaction Command at ControlPlaneAgent" << endl;
+  return nullptr;
+}

@@ -1,43 +1,25 @@
-#
-# simple-rmt: Example RMT simulation model using the PFPSim Framework
-#
-# Copyright (C) 2016 Concordia Univ., Montreal
-#     Samar Abdi
-#     Umair Aftab
-#     Gordon Bailey
-#     Faras Dewal
-#     Shafigh Parsazad
-#     Eric Tremblay
-#
-# Copyright (C) 2016 Ericsson
-#     Bochra Boughzala
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301, USA.
-#
-
 rm *.csv
-vlvl="INVALID"
-echo $vlvl
-if [ ! $# -eq 0 ]
-then
-    echo "No args passed"
-    echo $#
-    vlvl=$1
-else
-    vlvl='minimal'
+if [ "$#" -ne 3 ]; then
+    echo "Invalid Args passed"
+    echo "Usage: $0 <PFP debugger: [none,debug]> <application: [pfp, nat, router, ecmp, firewall]> <verbosity level: [normal, minimal, p4profile, profile, debugger, debug]>"
+    exit
 fi
-echo $vlvl
-./rmt-sim -c Configs/ -Xp4 simple_router.json -Xtpop table.txt -Xin Configs/input.pcap -Xvalidation-out reordered-output.pcap -v "$vlvl"
+debug_level="$1"
+application="$2"
+vlvl="$3"
+
+if [[ $debug_level == "debug" ]] ; then
+    if [[ $application == "pfp" ]] ; then 
+        pfpdb rmt-sim --args "-Xp4 ../../../apps/pfp_baseline/simple_router.json -Xtpop ../../../apps/pfp_baseline/table.txt -v "$vlvl" -Xin ../../../apps/pfp_baseline/input.pcap -Xvalidation-out output.pcap" -v
+    else
+        echo ""$application" not yet implemented.."
+        exit
+    fi
+else
+    if [[ $application == "pfp" ]] ; then
+        ./rmt-sim -c Configs/ -Xp4 ../../../apps/pfp_baseline/simple_router.json -Xtpop ../../../apps/pfp_baseline/table.txt -Xin ../../../apps/pfp_baseline/input.pcap -Xvalidation-out reordered-output.pcap -v "$vlvl"
+    else 
+        echo ""$application" not yet implemented.."
+        exit
+    fi
+fi

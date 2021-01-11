@@ -47,8 +47,15 @@ void PacketGenerator::PacketGenerator_PortServiceThread() {
 }
 
 void PacketGenerator::PacketGeneratorThread(std::size_t thread_id) {
-  std::string inputfile = GetParameter("pcap_input").get();
-  PcapRepeater pcapRepeater(CONFIGROOT+inputfile);
+  std::string inputpath = SPARG("in");
+  std::string pathToUse;
+  if (inputpath.empty()) {
+      std::string inputfile = GetParameter("pcap_input").get();
+      pathToUse = CONFIGROOT + inputfile;
+  } else {
+      pathToUse = inputpath;
+  }
+  PcapRepeater pcapRepeater(pathToUse);
 
   auto packet_gen = std::bind(&PcapRepeater::getNext, &pcapRepeater);
 
