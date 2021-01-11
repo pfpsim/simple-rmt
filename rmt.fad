@@ -1,4 +1,5 @@
 import tcam;
+import sram;
 
 interface QueueRdI, QueueWrI, MemI;
 service ControlPlaneAgentS;
@@ -49,10 +50,16 @@ PE Selector {
   QueueWrI select_out;
 };
 
-PE MatchTable {
+PE TCAMMatchTable {
   QueueRdI table_in;
   QueueWrI table_out;
   TcamSearchEngineS tse_port;
+};
+
+PE SRAMMatchTable {
+  QueueRdI table_in;
+  QueueWrI table_out;
+  SramSearchEngineS sse_port;
 };
 
 PE VLIWAction {
@@ -67,17 +74,22 @@ PE MatchStage {
   Queue selector_to_match, match_to_action;
 
   Selector selector;
-  MatchTable match_table;
-  VLIWAction vliw_action;
+  TCAMMatchTable tcam_match_table;
   TcamSearchEngine tse;
+  SRAMMatchTable sram_match_table;
+  SramSearchEngine sse;
+  VLIWAction vliw_action;
 
   bind selector.select_in {match_stage_in};
   bind selector.select_out {selector_to_match};
-  bind match_table.table_in {selector_to_match};
-  bind match_table.table_out {match_to_action};
+  bind tcam_match_table.table_in {selector_to_match};
+  bind tcam_match_table.table_out {match_to_action};
+  bind sram_match_table.table_in {selector_to_match};
+  bind sram_match_table.table_out {match_to_action};
   bind vliw_action.action_in {match_to_action};
   bind vliw_action.action_out {match_stage_out};
-  bind match_table.tse_port {tse};
+  bind tcam_match_table.tse_port {tse};
+  bind sram_match_table.sse_port {sse};
 };
 
 PE Pipeline {

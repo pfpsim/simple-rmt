@@ -1,0 +1,20 @@
+interface SramMemI;
+service SramS, SramSearchEngineS;
+
+CE SramMemory implements SramMemI;
+
+PE Sram("SramConfig.cfg") implements SramS {};
+
+PE DefaultSramController implements SramSearchEngineS{
+  SramS sram_port;
+  SramMemI mem;
+};
+
+PE SramSearchEngine implements SramSearchEngineS {
+  Sram main_sram;
+  DefaultSramController controller;
+  SramMemory TLMMemory;
+
+  bind controller.sram_port {main_sram};
+  bind controller.mem {TLMMemory};
+};
