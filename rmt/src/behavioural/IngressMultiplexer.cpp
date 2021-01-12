@@ -30,10 +30,12 @@
 
 #include "IngressMultiplexer.h"
 #include <string>
+#include <fstream>
+
 
 IngressMultiplexer::IngressMultiplexer(sc_module_name nm,
       pfp::core::PFPObject* parent,
-      std::string configfile):IngressMultiplexerSIM(nm, parent, configfile) {
+      std::string configfile):IngressMultiplexerSIM(nm, parent, configfile), outlog(OUTPUTDIR+"IngressTrace.csv") {
   /*sc_spawn threads*/
   ThreadHandles.push_back(sc_spawn(sc_bind(
         &IngressMultiplexer::IngressMultiplexerThread, this, 0)));
@@ -67,6 +69,7 @@ void IngressMultiplexer::IngressMultiplexerThread(std::size_t thread_id) {
         if (enable) {
           received = packet_in->get();
           output->put(received);
+          outlog<<received->id()<<","<<sc_time_stamp().to_default_time_units()<<endl;  // NOLINT
         } else {
           wait(packet_in->ok_to_get() | from_agent->ok_to_get());
         }

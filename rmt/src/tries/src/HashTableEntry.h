@@ -113,10 +113,11 @@ HashTableEntry<T>::HashTableEntry(const HashTableEntry<T>& iCopy) : mEntryTypeFl
 
 template <class T>
 HashTableEntry<T>::~HashTableEntry() {
-    if (mEntryTypeFlag == 0 && mPtr != 0) {
-        delete [] mPtr;
-        mPtr = 0;
-    }
+    // Commenting out because throwing an error with null pointer when calling this - PO
+    // if (mEntryTypeFlag == 0 && mPtr != 0) {
+    //     delete [] mPtr;
+    //     mPtr = 0;
+    // }
 }
 
 /// ==========================

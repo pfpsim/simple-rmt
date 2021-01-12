@@ -51,8 +51,8 @@ class IngressMultiplexer: public IngressMultiplexerSIM {
   void IngressMultiplexer_PortServiceThread();
   void IngressMultiplexerThread(std::size_t thread_id);
   std::vector<sc_process_handle> ThreadHandles;
-
   bool enable = false;
+  std::ofstream outlog;
 };
 
 #endif  // BEHAVIOURAL_INGRESSMULTIPLEXER_H_

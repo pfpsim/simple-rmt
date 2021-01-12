@@ -28,25 +28,25 @@
  * 02110-1301, USA.
  */
 
-#include "Logger.h"
+#include "OutputLogger.h"
 #include <string>
 #include <vector>
 #include "PacketHeaderVector.h"
 #include "common/PcapLogger.h"
 
-Logger::Logger(sc_module_name nm,
+OutputLogger::OutputLogger(sc_module_name nm,
       pfp::core::PFPObject* parent,
-      std::string configfile):LoggerSIM(nm, parent, configfile) {
+      std::string configfile):OutputLoggerSIM(nm, parent, configfile),outlog(OUTPUTDIR+"EgressTrace.csv") {
   /*sc_spawn threads*/
   ThreadHandles.push_back(sc_spawn(sc_bind(
-        &Logger::Logger_PortServiceThread, this)));
+        &OutputLogger::OutputLogger_PortServiceThread, this)));
 }
 
-void Logger::init() {
+void OutputLogger::init() {
   init_SIM(); /* Calls the init of sub PE's and CE's */
 }
 
-void Logger::Logger_PortServiceThread() {
+void OutputLogger::OutputLogger_PortServiceThread() {
   std::string outputfile = SPARG("validation-out");
   PcapLogger logger(outputfile);
   while (1) {
@@ -61,6 +61,8 @@ void Logger::Logger_PortServiceThread() {
               << phv->id() << endl;)
         npulog(normal, cout << module_name() << " received packet "
               << phv->id() << endl;)
+        // added by PO to write time of logger
+        outlog<<phv->id()<<","<<sc_time_stamp().to_default_time_units()<<endl;  // NOLINT
         std::vector<uint8_t> data;
         char *packet_data = phv->packet()->data();
         int data_size = phv->packet()->get_data_size();
@@ -78,5 +80,5 @@ void Logger::Logger_PortServiceThread() {
   }
 }
 
-void Logger::LoggerThread(std::size_t thread_id) {
+void OutputLogger::OutputLoggerThread(std::size_t thread_id) {
 }

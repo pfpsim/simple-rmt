@@ -343,7 +343,8 @@ void HashTrie<T>::insert(BitString iKey, T iAction, int iActionSize, unsigned in
                 }
                 iEntry->setPtr(newSubTrie, 1);
                 // MEMORY LEAK!?
-                delete [] wSubtrie;
+                // def a memory leak - PO
+                // delete [] wSubtrie;
             } else {
                 insert(iKey, iAction, iActionSize, iHashKey, &wSubtrie[popcount(extract(iEntry->getKeyBitmap(), 0, wIndex + 1)) - 1], iPos + STRIDE);
             }

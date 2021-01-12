@@ -28,27 +28,29 @@
  * 02110-1301, USA.
  */
 
-#ifndef BEHAVIOURAL_LOGGER_H_
-#define BEHAVIOURAL_LOGGER_H_
+#ifndef BEHAVIOURAL_OUTPUTLOGGER_H_
+#define BEHAVIOURAL_OUTPUTLOGGER_H_
 #include <vector>
 #include <string>
-#include "structural/LoggerSIM.h"
+#include "structural/OutputLoggerSIM.h"
+#include <fstream>
 
-class Logger: public LoggerSIM {
+class OutputLogger: public OutputLoggerSIM {
  public:
-  SC_HAS_PROCESS(Logger);
+  SC_HAS_PROCESS(OutputLogger);
   /*Constructor*/
-  Logger(sc_module_name nm, pfp::core::PFPObject* parent = 0,
+  OutputLogger(sc_module_name nm, pfp::core::PFPObject* parent = 0,
         std::string configfile = "");
   /*Destructor*/
-  virtual ~Logger() = default;
+  virtual ~OutputLogger() = default;
 
  public:
   void init();
 
  private:
-  void Logger_PortServiceThread();
-  void LoggerThread(std::size_t thread_id);
+  void OutputLogger_PortServiceThread();
+  void OutputLoggerThread(std::size_t thread_id);
   std::vector<sc_process_handle> ThreadHandles;
+  std::ofstream outlog;
 };
-#endif  // BEHAVIOURAL_LOGGER_H_
+#endif  // BEHAVIOURAL_OUTPUTLOGGER_H_
