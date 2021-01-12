@@ -20,35 +20,35 @@ void SramSearchEngine::SramSearchEngineThread(std::size_t thread_id) {
 
 // Insert
 void SramSearchEngine::insert(BitString prefix, SramActionBase* action) {
-  controller->insert(prefix, action);
+  sram_controller->insert(prefix, action);
 }
 
 void SramSearchEngine::insert(RoutingTableEntry<SramActionBase*> *routingTable,
       unsigned int routingTableSize) {
-  controller->insert(routingTable, routingTableSize);
+  sram_controller->insert(routingTable, routingTableSize);
 }
 
 // Remove
 void SramSearchEngine::remove(BitString prefix) {
-  controller->remove(prefix);
+  sram_controller->remove(prefix);
 }
 
 // Reconstruct
 void SramSearchEngine::reconstruct(
       RoutingTableEntry<SramActionBase*> *routingTable,
       unsigned int routingTableSize) {
-  controller->reconstruct(routingTable, routingTableSize);
+  sram_controller->reconstruct(routingTable, routingTableSize);
 }
 
 // Search
 SramActionBase* SramSearchEngine::exactSearch(BitString prefix) {
-  return controller->exactSearch(prefix);
+  return sram_controller->exactSearch(prefix);
 }
 
 SramActionBase* SramSearchEngine::search(BitString prefix) {
-  return controller->search(prefix);
+  return sram_controller->search(prefix);
 }
 
 void SramSearchEngine::setDefaultAction(SramActionBase* action) {
-  controller->setDefaultAction(action);
+  sram_controller->setDefaultAction(action);
 }

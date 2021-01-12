@@ -12,9 +12,9 @@ PE DefaultSramController implements SramSearchEngineS{
 
 PE SramSearchEngine implements SramSearchEngineS {
   Sram main_sram;
-  DefaultSramController controller;
+  DefaultSramController sram_controller;
   SramMemory TLMMemory;
 
-  bind controller.sram_port {main_sram};
-  bind controller.mem {TLMMemory};
+  bind sram_controller.sram_port {main_sram};
+  bind sram_controller.mem {TLMMemory};
 };
